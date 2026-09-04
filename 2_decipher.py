@@ -4,6 +4,42 @@ encoded = """
    [2::OG::ok] | [4::XLI::ok] | [7::WT7::bad] |
    [6::GZ_7_VS::ok] | [99::IGNORE_ME::bad] | %%noise%%
 """
+alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+fragments = []
+for part in encoded.split("|"):
+   part = part.strip()
+   if part.startswith("[") and part.endswith("]"):
+      content = part[1:-1]
+      parts = content.split("::")
+      if len(parts) == 3 and parts[2] == "ok":
+         try:
+            num = int(parts[0])
+            text = parts[1]
+            fragments.append((num, text))
+         except ValueError:
+            continue
+
+decoded_parts = []
+for num, text in fragments:
+   decoded = ""
+   for char in text:
+      if char in alphabet:
+         idx = alphabet.index(char)
+         new_idx = (idx - num) % 26
+         decoded += alphabet[new_idx]
+      elif char == "_":
+            decoded += " "
+      else:
+            decoded += char
+   decoded_parts.append((num, decoded))
+
+
+decoded_parts.sort(key=lambda x: x[0])
+
+
+final_message = " ".join([text for _, text in decoded_parts])
+print(final_message)
 
 ###############################################################
 """
@@ -16,6 +52,5 @@ Similarly, if the number is 5 and the jumbled message is ABC, then the actual me
 5. Once you have decoded all the fragments, combine them in the order of their numbers to get the final message. First comes the fragment with number 1, then 2, and so on.
 """
 
-alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
